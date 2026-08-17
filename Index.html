@@ -5,131 +5,117 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Penilaian Coding Day - Kelas 1</title>
     <style>
-        body { font-family: Arial, sans-serif; padding: 20px; max-width: 600px; margin: auto; }
+        body { font-family: Arial, sans-serif; padding: 20px; max-width: 600px; margin: auto; background-color: #f9f9f9; }
+        .form-card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
         .form-group { margin-bottom: 15px; }
         label { display: block; font-weight: bold; margin-bottom: 5px; }
-        input, select { width: 100%; padding: 8px; box-sizing: border-box; }
-        button { background-color: #4CAF50; color: white; padding: 10px 15px; border: none; cursor: pointer; width: 100%; }
-        #loading { display: none; color: blue; font-style: italic; margin-top: 10px; }
+        input, select { width: 100%; padding: 10px; box-sizing: border-box; border-radius: 4px; border: 1px solid #ccc; }
+        button { background-color: #4CAF50; color: white; padding: 12px 15px; border: none; border-radius: 4px; cursor: pointer; width: 100%; font-size: 16px; font-weight: bold; }
+        button:hover { background-color: #45a049; }
+        #loading { display: none; text-align: center; color: #0066cc; font-style: italic; margin-top: 15px; }
+        #resultArea { display: none; margin-top: 20px; padding: 15px; background: #e8f5e9; border-left: 4px solid #4CAF50; border-radius: 4px;}
     </style>
 </head>
 <body>
 
-    <h2>Form Penilaian Coding Day</h2>
-    <form id="penilaianForm">
-        <div class="form-group">
-            <label>Nama Siswa:</label>
-            <input type="text" id="namaSiswa" required>
-        </div>
-        <div class="form-group">
-            <label>Kelas:</label>
-            <input type="text" id="kelas" value="1A" required>
-        </div>
-        
-        <!-- Pilihan Nilai: BSB, BSH, MB, BB -->
-        <div class="form-group">
-            <label>Motorik (Mouse/Drag-Drop):</label>
-            <select id="motorik">
-                <option value="BSB">Berkembang Sangat Baik (BSB)</option>
-                <option value="BSH">Berkembang Sesuai Harapan (BSH)</option>
-                <option value="MB">Mulai Berkembang (MB)</option>
-                <option value="BB">Belum Berkembang (BB)</option>
-            </select>
-        </div>
-        <div class="form-group">
-            <label>Kognitif (Susun Warna Blok):</label>
-            <select id="kognitif">
-                <option value="BSB">BSB</option>
-                <option value="BSH">BSH</option>
-                <option value="MB">MB</option>
-                <option value="BB">BB</option>
-            </select>
-        </div>
-        <div class="form-group">
-            <label>Sikap (Kemandirian/Antusiasme):</label>
-            <select id="sikap">
-                <option value="BSB">BSB</option>
-                <option value="BSH">BSH</option>
-                <option value="MB">MB</option>
-                <option value="BB">BB</option>
-            </select>
-        </div>
+    <div class="form-card">
+        <h2 style="text-align: center; color: #333;">Form Penilaian Coding Day</h2>
+        <form id="penilaianForm">
+            <div class="form-group">
+                <label>Nama Siswa:</label>
+                <input type="text" id="namaSiswa" placeholder="Contoh: Budi Santoso" required>
+            </div>
+            <div class="form-group">
+                <label>Kelas:</label>
+                <input type="text" id="kelas" value="1A" required>
+            </div>
+            
+            <div class="form-group">
+                <label>Motorik (Mouse/Drag-Drop):</label>
+                <select id="motorik">
+                    <option value="BSB">Berkembang Sangat Baik (BSB)</option>
+                    <option value="BSH">Berkembang Sesuai Harapan (BSH)</option>
+                    <option value="MB">Mulai Berkembang (MB)</option>
+                    <option value="BB">Belum Berkembang (BB)</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Kognitif (Susun Warna Blok):</label>
+                <select id="kognitif">
+                    <option value="BSB">Berkembang Sangat Baik (BSB)</option>
+                    <option value="BSH">Berkembang Sesuai Harapan (BSH)</option>
+                    <option value="MB">Mulai Berkembang (MB)</option>
+                    <option value="BB">Belum Berkembang (BB)</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Sikap (Kemandirian/Antusiasme):</label>
+                <select id="sikap">
+                    <option value="BSB">Berkembang Sangat Baik (BSB)</option>
+                    <option value="BSH">Berkembang Sesuai Harapan (BSH)</option>
+                    <option value="MB">Mulai Berkembang (MB)</option>
+                    <option value="BB">Belum Berkembang (BB)</option>
+                </select>
+            </div>
 
-        <button type="submit">Submit & Generate AI Deskripsi</button>
-        <p id="loading">Memproses data dan generate deskripsi dengan Gemini AI...</p>
-    </form>
+            <button type="submit">Submit Data & Generate Narasi</button>
+            <p id="loading">Memproses data... Mohon tunggu (Gemini sedang menulis narasi AI)...</p>
+        </form>
+
+        <div id="resultArea">
+            <strong>Berhasil disimpan!</strong>
+            <p>Narasi otomatis dari Gemini AI:</p>
+            <p id="narasiResult" style="font-style: italic;"></p>
+        </div>
+    </div>
 
     <script>
-        // GANTI DENGAN URL WEB APP GOOGLE APPS SCRIPT ANDA
-        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycb.../exec'; 
-        
-        // PENTING: Di Netlify, gunakan Environment Variables atau Netlify Functions 
-        // Jangan hardcode API Key di sini untuk aplikasi publik. Ini hanya untuk demonstrasi logika.
-        const GEMINI_API_KEY = 'MASUKKAN_API_KEY_GEMINI_ANDA'; 
+        // GANTI DENGAN URL WEB APP GOOGLE APPS SCRIPT ANDA YANG BARU
+        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyw.../exec'; 
 
         document.getElementById('penilaianForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
+            // Tampilkan loading, sembunyikan result dan tombol
             document.getElementById('loading').style.display = 'block';
+            document.getElementById('resultArea').style.display = 'none';
+            e.target.querySelector('button').disabled = true;
 
-            const namaSiswa = document.getElementById('namaSiswa').value;
-            const kelas = document.getElementById('kelas').value;
-            const motorik = document.getElementById('motorik').value;
-            const kognitif = document.getElementById('kognitif').value;
-            const sikap = document.getElementById('sikap').value;
-
-            // 1. Buat Prompt untuk Gemini
-            const promptGemini = `
-                Kamu adalah guru TIK kelas 1 SD. Buatkan satu paragraf narasi deskripsi penilaian raport (maksimal 3 kalimat) 
-                untuk siswa bernama ${namaSiswa} dalam kegiatan "Coding Day" membuat game dengan Scratch.
-                Nilainya adalah:
-                - Keterampilan Motorik (menggunakan mouse): ${motorik}
-                - Kognitif (mencocokkan warna blok kode): ${kognitif}
-                - Sikap (Antusiasme): ${sikap}
-                Gunakan bahasa yang positif, memotivasi, dan ramah anak.
-                Catatan Nilai: BSB (Sangat Baik), BSH (Sesuai Harapan), MB (Mulai Berkembang), BB (Belum Berkembang).
-            `;
+            // Kumpulkan data
+            const payload = {
+                namaSiswa: document.getElementById('namaSiswa').value,
+                kelas: document.getElementById('kelas').value,
+                motorik: document.getElementById('motorik').options[document.getElementById('motorik').selectedIndex].text,
+                kognitif: document.getElementById('kognitif').options[document.getElementById('kognitif').selectedIndex].text,
+                sikap: document.getElementById('sikap').options[document.getElementById('sikap').selectedIndex].text
+            };
 
             try {
-                // 2. Request ke Gemini API (REST API)
-                const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`;
-                
-                const responseGemini = await fetch(geminiUrl, {
+                // Kirim langsung ke Apps Script
+                const response = await fetch(APPS_SCRIPT_URL, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        contents: [{ parts: [{ text: promptGemini }] }]
-                    })
-                });
-                
-                const dataGemini = await responseGemini.json();
-                const deskripsi = dataGemini.candidates[0].content.parts[0].text;
-
-                // 3. Kirim semua data (termasuk deskripsi) ke Google Apps Script
-                const payload = {
-                    namaSiswa: namaSiswa,
-                    kelas: kelas,
-                    motorik: motorik,
-                    kognitif: kognitif,
-                    sikap: sikap,
-                    deskripsiGemini: deskripsi
-                };
-
-                const responseGAS = await fetch(APPS_SCRIPT_URL, {
-                    method: 'POST',
-                    mode: 'no-cors', // Penting untuk menghindari error CORS di browser
-                    headers: { 'Content-Type': 'application/json' },
+                    // Gunakan text/plain untuk melewati preflight CORS yang ketat dari Google
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                     body: JSON.stringify(payload)
                 });
+                
+                const result = await response.json();
 
-                document.getElementById('loading').style.display = 'none';
-                alert('Berhasil! Data dan Deskripsi Gemini telah disimpan ke Google Sheets.');
-                document.getElementById('penilaianForm').reset();
+                if(result.status === "success") {
+                    document.getElementById('narasiResult').innerText = result.deskripsi;
+                    document.getElementById('resultArea').style.display = 'block';
+                    document.getElementById('penilaianForm').reset();
+                } else {
+                    alert('Gagal: ' + result.message);
+                }
 
             } catch (error) {
                 console.error('Error:', error);
+                alert('Gagal mengirim data. Pastikan URL Apps Script sudah benar.');
+            } finally {
+                // Sembunyikan loading, aktifkan tombol lagi
                 document.getElementById('loading').style.display = 'none';
-                alert('Terjadi kesalahan. Cek console log.');
+                e.target.querySelector('button').disabled = false;
             }
         });
     </script>
